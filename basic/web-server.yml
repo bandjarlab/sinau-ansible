@@ -1,0 +1,11 @@
+--- 
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: installing web server
+    package:
+      - name: nginx
+        update_cache: yes
+        state: latest
