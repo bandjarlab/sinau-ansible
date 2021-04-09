@@ -12,9 +12,8 @@
     - name: install updates
       tags: always
       package:
-          update_only: yes
-          update_cache: yes
-          state: latest
+        name: "*"
+        state: latest
 
 - hosts: web_servers
   become: true
@@ -23,6 +22,28 @@
       package:
         name: nginx
         state: latest
+      notify: restart nginx
+
+    # - name: start nginx
+    #   service:
+    #     name: nginx
+    #     state: started
+
+    - name: open and enable port 80 (http)
+      firewalld:
+        service: http
+        zone: public
+        # port: 80/tcp
+        permanent: true
+        state: enabled
+        immediate: yes # this is the firewall-cmd --reload
+
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        enabled: yes
+        state: restarted
 
 - hosts: db_servers 
   become: true
@@ -31,4 +52,3 @@
       package:
         name: mariadb-server
         state: latest
-        

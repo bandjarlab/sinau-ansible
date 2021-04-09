@@ -1,0 +1,89 @@
+--- 
+## PRE-TASKS
+- hosts: db_servers
+  become: true
+  pre_tasks:
+    - name: installing epel-release
+      tags: always
+      package:
+        name: epel-release
+        state: latest
+
+    - name: install updates
+      tags: always
+      package:
+        name: '*'
+        update_only: yes
+        update_cache: yes
+        state: latest
+
+    - name: install python3 and required packages
+      package:
+        name: 
+          - python3-devel 
+          - python3-pip
+          - python3-setuptools
+          - gcc
+        state: latest
+
+## MAIN TASKS
+- hosts: db_servers
+  become: true
+  vars:
+    mariadb_root_password: "P@ssw0rd!"
+  tasks:
+    - name: MARIADB | Adding Official MariaDB repository
+      template:
+        src: etc_yum.repos.d_mariadb.repo.j2
+        dest: /etc/yum.repos.d/MariaDB.repo
+
+    - name: MARIADB | Installing database MariaDB
+      package:
+        name:
+          - MariaDB-common 
+          - MariaDB-server
+          - python3-PyMySQL
+        state: latest
+
+    - name: Make sure PyMySQL is present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+      pip:
+        name: PyMySQL
+        state: present
+
+    - name: MARIADB | Starting database engine
+      service:
+        name: mariadb
+        enabled: true
+        state: started
+
+    - name: MARIADB | Securing database instance
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+      mysql_user: 
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        user: root
+        check_implicit_admin: yes
+        password: "{{ mariadb_root_password }}"
+        host: localhost
+
+    - name: MARIADB || Removing remote root
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+      mysql_user:
+        check_implicit_admin: yes
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        user: root
+        host: "{{ ansible_fqdn }}"
+        state: absent
+
+    - name: FIREWALL | Opening and enabling port 3306 (mariadb default port)
+      firewalld:
+        zone: public
+        port: 3306/tcp
+        permanent: true
+        state: enabled
+        immediate: yes # this is the firewall-cmd --reload

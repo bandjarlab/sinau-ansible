@@ -1,0 +1,14 @@
+---
+
+- hosts: db_servers
+  become: yes
+  tasks:
+
+  - name: create user
+    vars:
+      ansible_python_interpreter: /usr/bin/python3
+    mysql_user:
+      # name: dsuandi
+      # password: 12345
+      # priv: '*.*:ALL, GRANT'
+      # state: present
