@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - name: remove mariadb
+      package:
+        name: mariadb-server
+        state: removed

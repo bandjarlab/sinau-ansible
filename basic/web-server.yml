@@ -5,43 +5,44 @@
   pre_tasks:
     - name: installing epel-release
       tags: always
-      package:
+      package: 
         name: epel-release
         state: latest
-
+    
     - name: install updates
       tags: always
       package:
         name: '*'
         state: latest
 
-## MAIN TASKS
-- hosts: web_servers
-  become: true
-  tasks:
 
-  - name: NGINX | Installing NGINX repo rpm 
-    package:
-      name: "https://nginx.org/packages/centos/{{ansible_distribution_major_version}}/noarch/RPMS/nginx-release-centos-{{ansible_distribution_major_version}}-0.el{{ansible_distribution_major_version}}.ngx.noarch.rpm"
+# ## MAIN TASKS
+# - hosts: web_servers
+#   become: true
+#   tasks:
+
+#   - name: NGINX | Installing NGINX repo rpm 
+#     package:
+#       name: "https://nginx.org/packages/centos/{{ansible_distribution_major_version}}/noarch/RPMS/nginx-release-centos-{{ansible_distribution_major_version}}-0.el{{ansible_distribution_major_version}}.ngx.noarch.rpm"
       
-  - name: NGINX | Installing NGINX Server
-    package:
-      name: nginx
-      state: latest
-    notify: restart nginx
+#   - name: NGINX | Installing NGINX Server
+#     package:
+#       name: nginx
+#       state: latest
+#     notify: restart nginx
 
-  - name: FIREWALL | Opening and enabling port 80 (http)
-    firewalld:
-      service: http
-      zone: public
-      # port: 80/tcp
-      permanent: true
-      state: enabled
-      immediate: yes # this is the firewall-cmd --reload
+#   - name: FIREWALL | Opening and enabling port 80 (http)
+#     firewalld:
+#       service: http
+#       zone: public
+#       # port: 80/tcp
+#       permanent: true
+#       state: enabled
+#       immediate: yes # this is the firewall-cmd --reload
 
-  handlers:
-    - name: NGINX | Restart NGINX
-      service: 
-        name: nginx
-        enabled: yes
-        state: restarted
+#   handlers:
+#     - name: NGINX | Restart NGINX
+#       service: 
+#         name: nginx
+#         enabled: yes
+#         state: restarted

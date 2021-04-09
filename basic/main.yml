@@ -15,37 +15,37 @@
         name: "*"
         state: latest
 
-- hosts: web_servers
-  become: true
-  tasks:
-    - name: installing nginx
-      package:
-        name: nginx
-        state: latest
-      notify: restart nginx
+# - hosts: web_servers
+#   become: true
+#   tasks:
+#     - name: installing nginx
+#       package:
+#         name: nginx
+#         state: latest
+#       notify: restart nginx
 
-    # - name: start nginx
-    #   service:
-    #     name: nginx
-    #     state: started
+#     # - name: start nginx
+#     #   service:
+#     #     name: nginx
+#     #     state: started
 
-    - name: open and enable port 80 (http)
-      firewalld:
-        service: http
-        zone: public
-        # port: 80/tcp
-        permanent: true
-        state: enabled
-        immediate: yes # this is the firewall-cmd --reload
+#     - name: open and enable port 80 (http)
+#       firewalld:
+#         service: http
+#         zone: public
+#         # port: 80/tcp
+#         permanent: true
+#         state: enabled
+#         immediate: yes # this is the firewall-cmd --reload
 
-  handlers:
-    - name: restart nginx
-      service: 
-        name: nginx
-        enabled: yes
-        state: restarted
+#   handlers:
+#     - name: restart nginx
+#       service: 
+#         name: nginx
+#         enabled: yes
+#         state: restarted
 
-- hosts: db_servers 
+# - hosts: db_servers 
   become: true
   tasks: 
     - name: install mariadb server
