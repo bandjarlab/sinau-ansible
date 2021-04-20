@@ -1,0 +1,8 @@
+---
+# Handler to handle common notification that called by other plays
+- name: restart nginx
+  become: true
+  service:
+    name: nginx
+    enabled: yes
+    state: restarted

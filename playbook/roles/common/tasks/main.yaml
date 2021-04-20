@@ -1,0 +1,31 @@
+--- 
+# Common tasks
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Installing epel-release rpm
+      tags: always
+      name: epel-release
+      state: latest
+    
+    - name: install updates
+      tags: always
+      package:
+        name: '*'
+        state: latest
+    
+    - name: enabling php 74
+      yum: enablerepo=remi, remi-php74
+
+
+    # - name: installing and enabling REMI repo rpm
+    #   become: true
+    #   package:
+    #     name: "{{ remi_repo_url }}"
+    #     state: present
+
+    # - name: import remi GPG key.
+    #   become: yes
+    #   rpm_key:
+    #     key: "{{ remi_repo_key }} "
+    #     state: present

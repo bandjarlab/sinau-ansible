@@ -1,0 +1,14 @@
+---
+- name: install remi repo
+  become: true
+  yum: 
+    name: "https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
+    state: installed
+
+- name: install packages
+  become: true
+  yum:
+    name: "php-fpm,php,php-opcache,php-zip,php-xml,php-mbstring,php-fileinfo,php-bcmath,php-gd,php-intl,php-ldap,php-mysqlnd,php-bcmath"
+    state: installed
+    enablerepo: epel,remi,remi-php74
+    update_cache: yes

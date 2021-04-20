@@ -1,0 +1,97 @@
+---
+- name: NGINX | Installing NGINX repo rpm
+  become: yes
+  package:
+    name: "https://nginx.org/packages/centos/{{ansible_distribution_major_version}}/noarch/RPMS/nginx-release-centos-{{ansible_distribution_major_version}}-0.el{{ansible_distribution_major_version}}.ngx.noarch.rpm"
+
+- name: NGINX | Installing NGINX Server
+  become: yes
+  package:
+    name: nginx
+    state: latest
+  register: nginxinstalled
+  notify: restart nginx
+
+- name: NGINX | Opening and enabling default ports (HTTP, HTTPS)
+  become: yes
+  firewalld:
+    port: "{{ item }}/tcp"
+    zone: public
+    permanent: true
+    state: enabled
+    immediate: yes
+  with_items:
+    - 80
+    - 443
+
+- name: backuping default nginx configuration
+  # when: nginxinstalled|success
+  become: true
+  copy:
+    src: "/etc/nginx/nginx.conf"
+    dest: "/etc/nginx/nginx.conf.old"
+    # owner: root
+    # group: root
+    force: yes
+
+- name: replacing nginx configuration
+  # when: nginxinstalled|success
+  become: true
+  copy:
+    src: "files/nginx.conf"
+    dest: "/etc/nginx/nginx.conf"
+    # owner: root
+    # group: root
+    force: yes
+
+- name: backuping web default configuration
+  # when: nginxinstalled|success
+  become: true
+  copy:
+    src: "files/default.conf"
+    dest: "/etc/nginx/conf.d/default.conf.old"
+    owner: root
+    group: root
+    force: yes
+
+- name: replacing web default configuration
+  # when: nginxinstalled|success
+  become: true
+  copy:
+    src: "files/default.conf"
+    dest: "/etc/nginx/conf.d/default.conf"
+    owner: root
+    group: root
+    force: yes
+
+- name: replacing php-fpm default configuration
+  # when: nginxinstalled|success
+  become: true
+  copy:
+    src: "files/php-fpm.www.conf"
+    dest: "/etc/php-fpm.d/www.conf"
+    owner: root
+    group: root
+    force: yes
+
+- name: Creating folder for php-fpm sock    
+  # when: nginxinstalled|success
+  become: true
+  file: 
+    path: "/var/run/php-fpm"
+    state: directory
+    owner: nginx
+    group: nginx
+    force: yes 
+    mode: "u+rwx,g-wxx,o-rx"
+
+- name: Setup php-fpm sock    
+  # when: nginxinstalled|success
+  become: true
+  file: 
+    path: "/var/run/php-fpm/php-fpm.sock"
+    state: touch
+    owner: nginx
+    group: nginx
+    force: yes 
+    mode: "u+rwx,g-wxx,o-rx"
