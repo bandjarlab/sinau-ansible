@@ -43,6 +43,7 @@
           - MariaDB-common 
           - MariaDB-server
           - python3-PyMySQL
+          - MariaDB-backup
         state: latest
 
     - name: Make sure PyMySQL is present

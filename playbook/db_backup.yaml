@@ -1,0 +1,22 @@
+---
+- hosts: dbservers
+  become: true
+  vars:
+    date: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+  
+  tasks:
+    - set_fact:
+        target_dir: "/home/dsuandi/db-backup/{{ ansible_hostname }}-{{ date }}"
+
+    - name: mariadb backup | create backup directory
+      become: true    
+      file:
+        path: "{{ target_dir }}"
+        recurse: true
+        state: directory
+        mode: 755
+    
+    - name: backup databases
+      vars:
+        - ansible_python_interpreter: /usr/bin/python3
+      shell: "mariadb-backup --backup --target-dir={{ target_dir }} -u devel -pP@ssw0rd!"

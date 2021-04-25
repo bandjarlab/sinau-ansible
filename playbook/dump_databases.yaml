@@ -1,0 +1,36 @@
+---
+- hosts: dbservers
+  become: true
+  vars:
+    date: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+  
+  tasks:
+    - set_fact:
+        target_dir: "/home/dsuandi/db-backup/{{ ansible_hostname }}-{{ date }}"
+    - name: mariadb backup | create backup directory
+      become: true    
+      file:
+        path: "{{ target_dir }}"
+        recurse: true
+        state: directory
+        mode: 755
+    
+    - name: get db names
+      shell: 'mariadb -u devel -pP@ssw0rd! -e "show databases;"'
+      register: dblist
+
+    - name: backup databases
+      vars:
+        - ansible_python_interpreter: /usr/bin/python3
+        - exclude_db:
+          - "Database"
+          - "information_schema"
+          - "performance_schema"
+          - "mysql"
+      mysql_db:
+        state: dump
+        name: "{{ item }}"
+        target: "{{ target_dir }}/{{ item }}.sql"
+        login_user: "devel"
+        login_password: "P@ssw0rd!"
+      with_items: "{{ dblist.stdout_lines | difference(exclude_db) }}"
